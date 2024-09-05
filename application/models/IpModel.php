@@ -12,10 +12,11 @@ class IpModel extends CI_Model
         return $this->db->get('ip_addresses')->result();
     }
 
-    public function insert_ip($ip_address)
+    public function insert_ip($ip_address, $name)
     {
         $data = [
             'ip_address' => $ip_address,
+            'name' => $name
         ];
         return $this->db->insert('ip_addresses', $data);
     }

@@ -1,9 +1,9 @@
 <?php
-class ping extends CI_Controller
+class Ping extends CI_Controller
 {
     private $telegramToken = '1871492308:AAFodYb2KexgZHokKYw6qTpzyYGeC_n2SRI'; // Ganti dengan token bot Telegram Anda
     private $chatId = '-4504951482'; // Ganti dengan ID chat Telegram Anda
-
+    
     public function __construct()
     {
         parent::__construct();
@@ -18,21 +18,36 @@ class ping extends CI_Controller
         $this->load->view('ping/index', $data);
     }
 
+    public function add_ip()
+    {
+        $this->form_validation->set_rules('ip_address', 'IP Address', 'required|valid_ip');
+        $this->form_validation->set_rules('name', 'Name', 'required');
+
+        if ($this->form_validation->run() === FALSE) {
+            $this->load->view('ping/add_ip');
+        } else {
+            $ip_address = $this->input->post('ip_address');
+            $name = $this->input->post('name');
+            $this->IpModel->insert_ip($ip_address, $name);
+            redirect('ping/index');
+        }
+    }
+
     public function ping_ips_realtime()
     {
         $ips = $this->IpModel->get_all_ips();
         $result = [];
         foreach ($ips as $ip) {
             $status = $this->ping($ip->ip_address) ? 'Up' : 'Down';
+            if ($status === 'Down') {
+                $this->sendTelegramMessage("Alert: IP Address " . $ip->ip_address . " is Down.");
+            }
             $result[] = [
                 'ip_address' => $ip->ip_address,
                 'status' => $status
             ];
-
-            // Kirim pesan ke Telegram jika status "Down"
-            if ($status === 'Down') {
-                $this->sendTelegramMessage("Alert: IP Address " . $ip->ip_address . " is Down.");
-            }
+            // Update ping status in the database
+            $this->IpModel->update_ping_status($ip->id, $status);
         }
 
         echo json_encode($result);
