@@ -1,9 +1,9 @@
 <?php
 class Ping extends CI_Controller
 {
-    private $telegramToken = '1871492308:AAFodYb2KexgZHokKYw6qTpzyYGeC_n2SRI'; // Ganti dengan token bot Telegram Anda
-    private $chatId = '-4504951482'; // Ganti dengan ID chat Telegram Anda
-    
+    private $telegramToken = 'YOUR_BOT_TOKEN'; // Ganti dengan token bot Telegram Anda
+    private $chatId = 'YOUR_CHAT_ID'; // Ganti dengan ID chat Telegram Anda
+
     public function __construct()
     {
         parent::__construct();
@@ -29,6 +29,27 @@ class Ping extends CI_Controller
             $ip_address = $this->input->post('ip_address');
             $name = $this->input->post('name');
             $this->IpModel->insert_ip($ip_address, $name);
+            redirect('ping/index');
+        }
+    }
+
+    public function edit_ip($id)
+    {
+        $data['ip'] = $this->IpModel->get_ip_by_id($id);
+
+        if (empty($data['ip'])) {
+            show_404();
+        }
+
+        $this->form_validation->set_rules('ip_address', 'IP Address', 'required|valid_ip');
+        $this->form_validation->set_rules('name', 'Name', 'required');
+
+        if ($this->form_validation->run() === FALSE) {
+            $this->load->view('ping/edit_ip', $data);
+        } else {
+            $ip_address = $this->input->post('ip_address');
+            $name = $this->input->post('name');
+            $this->IpModel->update_ip($id, $ip_address, $name);
             redirect('ping/index');
         }
     }
