@@ -54,3 +54,5 @@ $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 $route['ping/add_ip'] = 'ping/add_ip';
 $route['ping/edit_ip/(:num)'] = 'ping/edit_ip/$1';
+$route['ping/delete_ip/(:num)'] = 'ping/delete_ip/$1';
+

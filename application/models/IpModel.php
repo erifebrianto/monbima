@@ -4,7 +4,7 @@ class IpModel extends CI_Model
     public function __construct()
     {
         parent::__construct();
-        $this->load->database(); // Pastikan database diload
+        $this->load->database();
     }
 
     public function get_all_ips()
@@ -31,16 +31,26 @@ class IpModel extends CI_Model
         return $this->db->update('ip_addresses', $data);
     }
 
+    public function delete_ip($id)
+    {
+        $this->db->where('id', $id);
+        return $this->db->delete('ip_addresses');
+    }
+
+    public function update_ping_status($id, $status, $down_time = null, $duration = 0)
+    {
+        $data = [
+            'last_ping_status' => $status,
+            'last_down_time' => $down_time,
+            'down_duration' => $duration
+        ];
+        $this->db->where('id', $id);
+        return $this->db->update('ip_addresses', $data);
+    }
+
     public function get_ip_by_id($id)
     {
         $this->db->where('id', $id);
-        $query = $this->db->get('ip_addresses');
-        return $query->row();
-    }
-
-    public function update_ping_status($id, $status)
-    {
-        $this->db->where('id', $id);
-        return $this->db->update('ip_addresses', ['last_ping_status' => $status]);
+        return $this->db->get('ip_addresses')->row();
     }
 }
