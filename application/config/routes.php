@@ -56,5 +56,7 @@ $route['ping/add_ip'] = 'ping/add_ip';
 $route['ping/edit_ip/(:num)'] = 'ping/edit_ip/$1';
 $route['ping/delete_ip/(:num)'] = 'ping/delete_ip/$1';
 $route['monitoring/get_ping_status'] = 'monitoring/get_ping_status';
+$route['monitoring/add_ip'] = 'monitoring/add_ip';
+$route['monitoring/import_csv'] = 'monitoring/import_csv';
 
 
