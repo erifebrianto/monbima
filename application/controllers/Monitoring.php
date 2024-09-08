@@ -8,17 +8,43 @@ class Monitoring extends CI_Controller {
         $this->load->model('Monitoring_model');
     }
 
+    // Method untuk menampilkan halaman utama
     public function index() {
-        // Daftar IP yang akan diping
-        $ips = ['192.168.52.1', '192.168.23.1', '8.8.8.8', '1.1.1.1'];
+        // Load view utama untuk monitoring
+        $this->load->view('monitoring_view');
+    }
 
-        // Lakukan ping untuk setiap IP
-        $data['results'] = [];
+    // Method untuk mendapatkan hasil ping terbaru (dengan AJAX)
+    public function get_ping_status() {
+        // Ambil semua IP yang tersimpan di database
+        $ips = $this->Monitoring_model->get_all_ips();
+
+        // Hasil ping untuk setiap IP
+        $results = [];
         foreach ($ips as $ip) {
-            $data['results'][$ip] = $this->Monitoring_model->ping($ip);
+            $status = $this->Monitoring_model->ping($ip->ip_address);
+            $this->Monitoring_model->save_ping_result($ip->ip_address, $status);
+            $results[] = [
+                'ip_address' => $ip->ip_address,
+                'status' => $status
+            ];
         }
 
-        // Load view dan kirim data hasil ping
-        $this->load->view('monitoring_view', $data);
+        // Return data sebagai JSON
+        echo json_encode($results);
+    }
+
+    // Method untuk menambah IP baru
+    public function add_ip() {
+        $this->load->library('form_validation');
+        $this->form_validation->set_rules('ip_address', 'IP Address', 'required|valid_ip');
+
+        if ($this->form_validation->run() === TRUE) {
+            $ip_address = $this->input->post('ip_address');
+            $this->db->insert('ip_addresses', ['ip_address' => $ip_address]);
+            redirect('monitoring');
+        } else {
+            $this->load->view('add_ip_view');
+        }
     }
 }
